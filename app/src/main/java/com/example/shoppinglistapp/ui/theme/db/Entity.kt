@@ -38,7 +38,7 @@ interface ItemDao{
     suspend fun getAllUsers(): List<Item>
 }
 
-@Database(entities = [Item::class], version = 1)
+@Database(entities = [Item::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): ItemDao
     companion object {
