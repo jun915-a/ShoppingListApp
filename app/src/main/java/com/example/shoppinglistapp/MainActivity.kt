@@ -10,9 +10,9 @@ import com.example.shoppinglistapp.ui.theme.ShoppingListAppTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+//        enableEdgeToEdge()
         setContent {
-            ShoppingListAppTheme {
+            ShoppingListAppTheme() {
                 BaseScreen()
             }
         }
