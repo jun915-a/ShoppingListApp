@@ -22,9 +22,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -32,6 +36,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,13 +48,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.shoppinglistapp.ui.theme.dialog.CategoryDialog
+import com.example.shoppinglistapp.ui.theme.dialog.NewItemDialog
 
 
 @Composable
-fun BaseScreen() {
+fun BaseScreen(
+    viewModel: MainViewModel = hiltViewModel(),
+
+    ) {
+    CategoryDialog(isDialogOpen = viewModel.isShowCategoryDialog)
+    NewItemDialog(isDialogOpen = viewModel.isShowNewItemDialog)
     val navController = rememberNavController()
     val items = listOf("home", "barcodeScan", "setting")
 
@@ -54,7 +70,7 @@ fun BaseScreen() {
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    println("Test!!! onClick")
+                    viewModel.isShowCategoryDialog = true
                 },
                 modifier = Modifier
                     .padding(16.dp)
@@ -85,9 +101,9 @@ fun BaseScreen() {
             navController = navController,
             startDestination = "home",
         ) {
-            composable("home") { ParentLayout(innerPadding) }
+            composable("home") { ParentLayout(innerPadding, viewModel) }
             composable("barcodeScan") { aa(paddingValues = innerPadding) }
-            composable("setting") { aa(paddingValues = innerPadding)  }
+            composable("setting") { aa(paddingValues = innerPadding) }
         }
 
     }
@@ -99,7 +115,10 @@ fun aa(paddingValues: PaddingValues) {
 }
 
 @Composable
-fun ParentLayout(paddingValues: PaddingValues) {
+fun ParentLayout(
+    paddingValues: PaddingValues,
+    viewModel: MainViewModel = hiltViewModel(),
+) {
     val dummyCategory = listOf("食料品", "日用品", "ペット", "趣味", "洋服", "本")
 
     Column(
@@ -125,15 +144,15 @@ fun ParentLayout(paddingValues: PaddingValues) {
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
                     )
-                    Icon(
-                        Icons.Default.Add,
-                        contentDescription = "add",
-                        modifier = Modifier.clickable {
-                            println("test!!!")
-                        })
+//                    Icon(
+//                        Icons.Default.Add,
+//                        contentDescription = "add",
+//                        modifier = Modifier.clickable {
+//                            println("test!!!")
+//                        })
                 }
                 Spacer(modifier = Modifier.height(8.dp))
-                HorizontalScrollableCardList()
+                HorizontalScrollableCardList(viewModel)
             }
         }
 
@@ -141,9 +160,13 @@ fun ParentLayout(paddingValues: PaddingValues) {
 }
 
 @Composable
-fun HorizontalScrollableCardList() {
+fun HorizontalScrollableCardList(
+    viewModel: MainViewModel = hiltViewModel(),
+
+    ) {
     val dummyItems = listOf("鶏もも肉", "牛肉", "豚肉", "魚", "野菜", "果物")
 //    val dummyItems = listOf("鶏もも肉",)
+//    var expanded by remember { mutableStateOf(false) }
 
     LazyRow(
         modifier = Modifier
@@ -159,7 +182,7 @@ fun HorizontalScrollableCardList() {
                 verticalArrangement = Arrangement.Center, // 垂直方向に中央寄せ
                 horizontalAlignment = Alignment.CenterHorizontally // 水平方向にも中央寄せ (必要であれば)
             ) {
-                AddButton()
+                AddButton(viewModel)
             }
         }
     }
@@ -167,6 +190,8 @@ fun HorizontalScrollableCardList() {
 
 @Composable
 fun Card(item: String) {
+    // メニューが表示されているかを管理する状態
+    var expanded by remember { mutableStateOf(false) }
     androidx.compose.material3.Card(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
@@ -186,11 +211,35 @@ fun Card(item: String) {
                 modifier = Modifier.fillMaxWidth(), // Row を Column いっぱいに広げる
                 horizontalArrangement = Arrangement.End // Row 内の要素を右寄せにする
             ) {
-                Icon(Icons.Default.Menu, contentDescription = "menu",
-                    modifier = Modifier.clickable {
-                        println("test!!!!")
-                    })
+                Column {
+
+
+                    Icon(Icons.Default.Menu, contentDescription = "menu",
+                        modifier = Modifier.clickable {
+                            expanded = !expanded
+                        })
+                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                        DropdownMenuItem(
+                            text = { Text("編集") },
+                            onClick = { /* Handle edit! */ },
+                            leadingIcon = { Icon(Icons.Outlined.Edit, contentDescription = null) }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("削除", color = Color.Red) },
+                            onClick = { /* Handle settings! */ },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Outlined.Delete,
+                                    contentDescription = null,
+                                    tint = Color.Red // アイコンの色を赤に変更
+
+                                )
+                            }
+                        )
+                    }
+                }
             }
+
             Text(
                 text = item,
                 fontSize = 18.sp,
@@ -215,9 +264,12 @@ fun Card(item: String) {
 }
 
 @Composable
-fun AddButton() {
+fun AddButton(
+    viewModel: MainViewModel = hiltViewModel(),
+
+    ) {
     Button(
-        onClick = { /* ボタンの処理 */ },
+        onClick = { viewModel.isShowNewItemDialog = true },
         shape = MaterialTheme.shapes.large, // 丸みを帯びた形状
         colors = ButtonDefaults.buttonColors(
             containerColor = Purple80, // 薄い灰色の背景色
@@ -236,12 +288,11 @@ fun AddButton() {
     }
 }
 
-@Preview(showBackground = true)
+
+@Preview
 @Composable
 fun Preview() {
     ShoppingListAppTheme {
         BaseScreen()
-
     }
 }
-
