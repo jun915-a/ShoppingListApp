@@ -40,9 +40,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+
 
 @Composable
 fun BaseScreen() {
+    val navController = rememberNavController()
+    val items = listOf("home", "barcodeScan", "setting")
+
     Scaffold(modifier = Modifier.fillMaxSize(),
         floatingActionButton = {
             FloatingActionButton(
@@ -72,12 +79,24 @@ fun BaseScreen() {
             }
         },
         bottomBar = {
-            MyNavigationBar()
+            MyNavigationBar(navController)
         }) { innerPadding ->
-        ParentLayout(innerPadding)
+        NavHost(
+            navController = navController,
+            startDestination = "home",
+        ) {
+            composable("home") { ParentLayout(innerPadding) }
+            composable("barcodeScan") { aa(paddingValues = innerPadding) }
+            composable("setting") { aa(paddingValues = innerPadding)  }
+        }
+
     }
 }
 
+@Composable
+fun aa(paddingValues: PaddingValues) {
+    Text("sas")
+}
 
 @Composable
 fun ParentLayout(paddingValues: PaddingValues) {

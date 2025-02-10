@@ -1,9 +1,9 @@
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -19,12 +19,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.shoppinglistapp.ui.theme.Purple90
 
 @OptIn(ExperimentalMaterial3Api::class) // NavigationBar は Experimental
 @Composable
-fun MyNavigationBar() {
+fun MyNavigationBar(navController: NavHostController) {
     var selectedItem by remember { mutableStateOf(0) } // 選択されたアイテムを追跡
+    val items = listOf("home", "barcodeScan", "setting")
 
     NavigationBar(
         modifier =
@@ -34,24 +36,24 @@ fun MyNavigationBar() {
         containerColor = Purple90,
 
         ) {
-        NavigationBarItem(
-            icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
-            label = { Text("Home") },
-            selected = selectedItem == 0,
-            onClick = { selectedItem = 0 }
-        )
-        NavigationBarItem(
-            icon = { Icon(Icons.Filled.Favorite, contentDescription = "Favorite") },
-            label = { Text("Favorite") },
-            selected = selectedItem == 1,
-            onClick = { selectedItem = 1 }
-        )
-        NavigationBarItem(
-            icon = { Icon(Icons.Filled.ShoppingCart, contentDescription = "Cart") },
-            label = { Text("Cart") },
-            selected = selectedItem == 2,
-            onClick = { selectedItem = 2 }
-        )
+        items.forEachIndexed { index, item ->
+            NavigationBarItem(
+                icon = {
+                    when (item) {
+                        "home" -> Icon(Icons.Filled.Home, contentDescription = "Home")
+                        "barcodeScan" -> Icon(
+                            Icons.Filled.Search,
+                            contentDescription = "BarcodeScan"
+                        )
+
+                        "setting" -> Icon(Icons.Filled.Settings, contentDescription = "Setting")
+                    }
+                },
+                label = { Text(item.replaceFirstChar { it.uppercase() }) },
+                selected = navController.currentDestination?.route == item,
+                onClick = { navController.navigate(item) }
+            )
+        }
     }
 }
 
