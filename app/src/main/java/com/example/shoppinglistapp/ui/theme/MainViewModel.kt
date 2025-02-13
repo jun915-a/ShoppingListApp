@@ -4,8 +4,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.example.shoppinglistapp.ui.theme.dialog.CategoryItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -16,9 +18,14 @@ class MainViewModel @Inject constructor(
     var isShowCategoryDialog by mutableStateOf(false)
     var isShowNewItemDialog by mutableStateOf(false)
 
+//    var categoryNameList: MutableList<CategoryItem> = mutableListOf()
+    var categoryItemList: MutableList<Pair<String, CategoryItem?>> = mutableListOf()
+
+//    var selectCategory by mutableStateOf("")
+
+
 
 //    var memo by mutableStateOf("")
-//    var trainingName: MutableList<String> = mutableListOf()
 
 /*
     /*

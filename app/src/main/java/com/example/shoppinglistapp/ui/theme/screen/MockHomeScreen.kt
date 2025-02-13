@@ -1,6 +1,5 @@
 package com.example.shoppinglistapp.ui.theme.screen
 
-import MyNavigationBar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -24,9 +22,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -46,55 +41,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.example.shoppinglistapp.ui.theme.MainViewModel
-import com.example.shoppinglistapp.ui.theme.Purple80
-import com.example.shoppinglistapp.ui.theme.dialog.CategoryDialog
-import com.example.shoppinglistapp.ui.theme.dialog.CategoryItem
-import com.example.shoppinglistapp.ui.theme.dialog.NewItemDialog
 
 
 @Composable
-fun BaseScreen(
-    viewModel: MainViewModel = hiltViewModel(),
-) {
-    CategoryDialog(isDialogOpen = viewModel.isShowCategoryDialog)
-    NewItemDialog(isDialogOpen = viewModel.isShowNewItemDialog)
-    val navController = rememberNavController()
-
-    Scaffold(modifier = Modifier.fillMaxSize(),
-        bottomBar = {
-            MyNavigationBar(navController)
-        }) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = "home",
-        ) {
-            composable("home") {
-                HomeScreen(viewModel)
-//                MockHomeScreen(innerPadding, viewModel) //デモデータ
-            }
-            composable("barcodeScan") { CameraScreen() }
-            composable("setting") { SettingsScreen(paddingValues = innerPadding) }
-        }
-
-    }
-}
-
-@Composable
-fun HomeScreen(
+fun MockHomeScreen(
 //    paddingValues: PaddingValues,
     viewModel: MainViewModel = hiltViewModel(),
 ) {
     Scaffold(
-        modifier = Modifier
-//            .padding(paddingValues)
-            .fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
@@ -103,10 +63,10 @@ fun HomeScreen(
                 modifier = Modifier
                     .padding(16.dp)
                     .padding(bottom = 60.dp)
-                    .clip(RoundedCornerShape(50)),
+                    .clip(RoundedCornerShape(50)), // 角を丸く
                 containerColor = MaterialTheme.colorScheme.onPrimary, // 背景色
                 contentColor = Color.White, // アイコンとテキストの色
-                elevation = FloatingActionButtonDefaults.elevation(8.dp) // 影
+                elevation = FloatingActionButtonDefaults.elevation(8.dp) // 影を追加
             ) {
                 Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
                     Icon(
@@ -123,11 +83,14 @@ fun HomeScreen(
                 }
             }
         },
-    ) {
+    ) { paddingValues ->
+        val dummyCategory = listOf("食料品", "日用品", "ペット", "趣味", "洋服", "本")
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
+                .padding(paddingValues)
                 .background(MaterialTheme.colorScheme.primary),
         ) {
             Spacer(modifier = Modifier.height(32.dp))
@@ -138,17 +101,23 @@ fun HomeScreen(
                     .padding(horizontal = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(viewModel.categoryItemList) {
+                items(dummyCategory) {
                     Row {
                         Text(
-                            text = it.first,
+                            text = it,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.Black
                         )
+//                    Icon(
+//                        Icons.Default.Add,
+//                        contentDescription = "add",
+//                        modifier = Modifier.clickable {
+//                            println("test!!!")
+//                        })
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    HorizontalScrollableCardList(viewModel)
+                    MockHorizontalScrollableCardList(viewModel)
                 }
             }
 
@@ -157,50 +126,46 @@ fun HomeScreen(
 
 }
 
-
 @Composable
-fun HorizontalScrollableCardList(
+fun MockHorizontalScrollableCardList(
     viewModel: MainViewModel = hiltViewModel(),
-) {
+    ) {
+    val dummyItems = listOf("鶏もも肉", "牛肉", "豚肉", "魚", "野菜", "果物")
+//    val dummyItems = listOf("鶏もも肉",)
 //    var expanded by remember { mutableStateOf(false) }
-    var itemList: MutableList<CategoryItem> = mutableListOf()
 
     LazyRow(
         modifier = Modifier
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        for (i in viewModel.categoryItemList) {
-            if (i.second != null) {
-                itemList.add(i.second!!)
-            }
-        }
-        items(itemList) { item ->
-            Card(item)
+        items(dummyItems) { item ->//todo ダミーデータ差し替え
+            MockCard(item)
         }
         item {
             Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier.fillMaxSize(), // 親コンポーザブルいっぱいに広げる
+                verticalArrangement = Arrangement.Center, // 垂直方向に中央寄せ
+                horizontalAlignment = Alignment.CenterHorizontally // 水平方向にも中央寄せ (必要であれば)
             ) {
-                AddButton(viewModel)
+//                AddButton(viewModel)
             }
         }
     }
 }
 
 @Composable
-fun Card(categoryItem: CategoryItem) {
+fun MockCard(item: String) {
+    // メニューが表示されているかを管理する状態
     var expanded by remember { mutableStateOf(false) }
-    Card(
+    androidx.compose.material3.Card(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .width(250.dp)
             .height(180.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondary,
-            contentColor = Color.Black
+            containerColor = MaterialTheme.colorScheme.secondary, // 背景色を薄い灰色に設定
+            contentColor = Color.Black // テキスト色を黒に設定
         )
     ) {
         Column(
@@ -209,11 +174,12 @@ fun Card(categoryItem: CategoryItem) {
                 .fillMaxSize(),
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End // Row 内の要素を右寄せ
+                modifier = Modifier.fillMaxWidth(), // Row を Column いっぱいに広げる
+                horizontalArrangement = Arrangement.End // Row 内の要素を右寄せにする
             ) {
                 Column {
-                    Icon(Icons.Default.Menu, contentDescription = "menu",
+                    Icon(
+                        Icons.Default.Menu, contentDescription = "menu",
                         modifier = Modifier.clickable {
                             expanded = !expanded
                         })
@@ -230,7 +196,7 @@ fun Card(categoryItem: CategoryItem) {
                                 Icon(
                                     Icons.Outlined.Delete,
                                     contentDescription = null,
-                                    tint = Color.Red
+                                    tint = Color.Red // アイコンの色を赤に変更
 
                                 )
                             }
@@ -240,7 +206,7 @@ fun Card(categoryItem: CategoryItem) {
             }
 
             Text(
-                text = categoryItem.itemName,
+                text = item,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
@@ -252,7 +218,7 @@ fun Card(categoryItem: CategoryItem) {
                 color = Color.Gray
             )
             Text(
-                text = categoryItem.memo ?: "",
+                text = "test,test,test,test,test,test,test,test,test,test,test,test,test,test,test,testtest,test,test,test,test,test,test,testtest,test,test,test,test,test,test,testtest,test,test,test,test,test,test,testtest,test,test,test,test,test,test,testtest,test,test,test,test,test,test,testtest,test,test,test,test,test,test,test",
                 fontSize = 8.sp,
                 color = Color.Gray
             )
@@ -261,30 +227,8 @@ fun Card(categoryItem: CategoryItem) {
 
     }
 }
-
 @Composable
-fun AddButton(
-    viewModel: MainViewModel = hiltViewModel()
-) {
-    Button(
-        onClick = {
-            viewModel.isShowNewItemDialog = true
-        },
-        shape = MaterialTheme.shapes.large,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Purple80, //背景
-            contentColor = MaterialTheme.colorScheme.onSurfaceVariant //アイコン色
-        ),
-        modifier = Modifier
-            .size(height = 180.dp, width = 60.dp),
-        contentPadding = PaddingValues(8.dp)
-
-    ) {
-        Icon(
-            imageVector = Icons.Filled.Add,
-            contentDescription = "Add",
-        )
-    }
+@Preview
+fun Test(){
+    MockHomeScreen()
 }
-
-
