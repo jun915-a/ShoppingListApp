@@ -1,4 +1,4 @@
-package com.example.shoppinglistapp.ui.theme
+package com.example.shoppinglistapp.ui.theme.screen
 
 import MyNavigationBar
 import androidx.compose.foundation.background
@@ -45,13 +45,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.shoppinglistapp.ui.theme.MainViewModel
+import com.example.shoppinglistapp.ui.theme.Purple80
 import com.example.shoppinglistapp.ui.theme.dialog.CategoryDialog
 import com.example.shoppinglistapp.ui.theme.dialog.NewItemDialog
 
@@ -67,6 +68,33 @@ fun BaseScreen(
     val items = listOf("home", "barcodeScan", "setting")
 
     Scaffold(modifier = Modifier.fillMaxSize(),
+        bottomBar = {
+            MyNavigationBar(navController)
+        }) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = "home",
+        ) {
+            composable("home") { ParentLayout(innerPadding, viewModel) }
+            composable("barcodeScan") { CameraScreen() }
+            composable("setting") { SettingsScreen(paddingValues = innerPadding) }
+        }
+
+    }
+}
+
+@Composable
+fun aa(paddingValues: PaddingValues) {
+    Text("sas")
+}
+
+@Composable
+fun ParentLayout(
+    paddingValues: PaddingValues,
+    viewModel: MainViewModel = hiltViewModel(),
+) {
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
@@ -74,6 +102,7 @@ fun BaseScreen(
                 },
                 modifier = Modifier
                     .padding(16.dp)
+                    .padding(bottom = 60.dp)
                     .clip(RoundedCornerShape(50)), // 角を丸く
                 containerColor = MaterialTheme.colorScheme.onPrimary, // 背景色
                 contentColor = Color.White, // アイコンとテキストの色
@@ -94,69 +123,47 @@ fun BaseScreen(
                 }
             }
         },
-        bottomBar = {
-            MyNavigationBar(navController)
-        }) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = "home",
-        ) {
-            composable("home") { ParentLayout(innerPadding, viewModel) }
-            composable("barcodeScan") { aa(paddingValues = innerPadding) }
-            composable("setting") { aa(paddingValues = innerPadding) }
-        }
+    ) { paddingValues ->
+        val dummyCategory = listOf("食料品", "日用品", "ペット", "趣味", "洋服", "本")
 
-    }
-}
-
-@Composable
-fun aa(paddingValues: PaddingValues) {
-    Text("sas")
-}
-
-@Composable
-fun ParentLayout(
-    paddingValues: PaddingValues,
-    viewModel: MainViewModel = hiltViewModel(),
-) {
-    val dummyCategory = listOf("食料品", "日用品", "ペット", "趣味", "洋服", "本")
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-            .padding(paddingValues)
-            .background(MaterialTheme.colorScheme.primary),
-    ) {
-        Spacer(modifier = Modifier.height(32.dp))
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .padding(horizontal = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(paddingValues)
+                .background(MaterialTheme.colorScheme.primary),
         ) {
-            items(dummyCategory) {
-                Row {
-                    Text(
-                        text = it,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
+            Spacer(modifier = Modifier.height(32.dp))
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .padding(horizontal = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(dummyCategory) {
+                    Row {
+                        Text(
+                            text = it,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
 //                    Icon(
 //                        Icons.Default.Add,
 //                        contentDescription = "add",
 //                        modifier = Modifier.clickable {
 //                            println("test!!!")
 //                        })
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    HorizontalScrollableCardList(viewModel)
                 }
-                Spacer(modifier = Modifier.height(8.dp))
-                HorizontalScrollableCardList(viewModel)
             }
-        }
 
+        }
     }
+
 }
 
 @Composable
@@ -212,8 +219,6 @@ fun Card(item: String) {
                 horizontalArrangement = Arrangement.End // Row 内の要素を右寄せにする
             ) {
                 Column {
-
-
                     Icon(Icons.Default.Menu, contentDescription = "menu",
                         modifier = Modifier.clickable {
                             expanded = !expanded
@@ -289,10 +294,3 @@ fun AddButton(
 }
 
 
-@Preview
-@Composable
-fun Preview() {
-    ShoppingListAppTheme {
-        BaseScreen()
-    }
-}
