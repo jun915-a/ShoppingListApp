@@ -64,7 +64,7 @@ fun CategoryDialog(
             confirmButton = {
                 Button(
                     onClick = {
-                        viewModel.categoryItemList.add(Pair(textState,null))
+                        viewModel.categoryItemList.add(Pair(textState, mutableListOf()))
                         viewModel.isShowCategoryDialog = false
                     },
                     enabled = isConfirmEnabled,

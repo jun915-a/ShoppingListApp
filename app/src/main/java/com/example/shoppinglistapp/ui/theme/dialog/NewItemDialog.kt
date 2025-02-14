@@ -34,10 +34,10 @@ fun NewItemDialog(
         // ダイアログの表示
         var isConfirmEnabled by remember { mutableStateOf(false) }
 
-        var itemState by remember { mutableStateOf(Pair("", "")) }
+        var itemState by remember { mutableStateOf<CategoryItem>(CategoryItem("", "")) }
 
 
-        if (itemState.first.isNotEmpty()) {
+        if (itemState.itemName.isNotEmpty()) {
             isConfirmEnabled = true
         }
         AlertDialog(
@@ -55,9 +55,9 @@ fun NewItemDialog(
                     Spacer(modifier = Modifier.height(8.dp)) // 少しスペースを空ける
 
                     TextField(
-                        value = itemState.first,
+                        value = itemState.itemName,
                         onValueChange = { newValue ->
-                            itemState = itemState.copy(first = newValue)
+                            itemState = itemState.copy(itemName = newValue)
                         },
                         label = { Text("アイテム名", color = Color.Black) },
                         singleLine = true, // 1行に制限
@@ -66,31 +66,25 @@ fun NewItemDialog(
 
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-                    TextField(
-                        value = itemState.second,
-                        onValueChange = { newValue ->
-                            itemState = itemState.copy(second = newValue)
-                        }, label = { Text("メモ", color = Color.Black) },
-                        singleLine = false,
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.colors(cursorColor = Color.Black)
-                    )
+                    itemState.memo?.let {
+                        TextField(
+                            value = it,
+                            onValueChange = { newValue ->
+                                itemState = itemState.copy(memo = newValue)
+                            }, label = { Text("メモ", color = Color.Black) },
+                            singleLine = false,
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = TextFieldDefaults.colors(cursorColor = Color.Black)
+                        )
+                    }
                 }
             },
             confirmButton = {
                 Button(
                     onClick = {
-//                        val index = viewModel.categoryNameList.indexOfFirst { it.categoryName == viewModel.selectCategory }
-                        if (index != -1) {
-                            // 既存の要素を更新（順番を保持）
-                            viewModel.categoryNameList[index] = viewModel.categoryNameList[index].copy(item = Pair(itemState.first, itemState.second))
-                        }
-
+                        println("test!!! dialog ${viewModel.selectIndex}")
+                        viewModel.categoryItemList[viewModel.selectIndex].second.add(itemState)
                         viewModel.isShowNewItemDialog = false
-                        for (i in viewModel.categoryNameList){
-                            println("test!!! categoryNameList${i} selectCategory${viewModel.selectCategory}" )
-
-                        }
                     },
                     enabled = isConfirmEnabled,
                     colors = ButtonDefaults.buttonColors(

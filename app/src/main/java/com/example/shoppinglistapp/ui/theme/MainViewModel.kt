@@ -18,66 +18,65 @@ class MainViewModel @Inject constructor(
     var isShowCategoryDialog by mutableStateOf(false)
     var isShowNewItemDialog by mutableStateOf(false)
 
-//    var categoryNameList: MutableList<CategoryItem> = mutableListOf()
-    var categoryItemList: MutableList<Pair<String, CategoryItem?>> = mutableListOf()
+    //    var categoryNameList: MutableList<CategoryItem> = mutableListOf()
+    var categoryItemList: MutableList<Pair<String, MutableList<CategoryItem?>>> = mutableListOf()
 
-//    var selectCategory by mutableStateOf("")
-
+    var selectIndex by mutableStateOf(0)
 
 
 //    var memo by mutableStateOf("")
 
-/*
     /*
-     * アプリ起動時taskを全件取得
-     */
-    val tasks = taskDao.loadAllTasks().distinctUntilChanged()
+        /*
+         * アプリ起動時taskを全件取得
+         */
+        val tasks = taskDao.loadAllTasks().distinctUntilChanged()
 
-    /*
-     * 保存ボタン押下時taskを保存
-     */
-    fun insertTask(task: Task) {
-        viewModelScope.launch {
-            taskDao.insertTask(task)
-            println("success_test_log ${task.jsonStr} }")
+        /*
+         * 保存ボタン押下時taskを保存
+         */
+        fun insertTask(task: Task) {
+            viewModelScope.launch {
+                taskDao.insertTask(task)
+                println("success_test_log ${task.jsonStr} }")
+            }
         }
-    }
 
-    /*
-     * 編集モードから保存した際のアップデート
+        /*
+         * 編集モードから保存した際のアップデート
+         */
+        fun updateTask(task: Task) {
+            viewModelScope.launch {
+                taskDao.updateTask(task)
+    //            Log.d("success_updateTask", "${task.id} ${task.name} ${task.userId} ${task.password}")
+            }
+        }
+
+        fun updateIdsAfterDelete(taskId: Int) {
+            viewModelScope.launch {
+                taskDao.updateIdsAfterDelete(taskId)
+            }
+        }
+
+        /*
+         * TODO　カレンダー下部のアイテム長押しで削除
+         */
+        fun deleteTask(task: Task) {
+            viewModelScope.launch {
+                taskDao.deleteTask(task)
+    //            Log.d("delete_updateTask", "${task.id} ${task.name} ${task.userId} ${task.password}")
+            }
+        }
+
+        // オブジェクトをJSON文字列に変換する
+        fun toJson(obj: Any): String {
+            return Gson().toJson(obj)
+        }
+
+        // JSON文字列をオブジェクトに変換する
+        inline fun <reified T> fromJson(json: String): T {
+            return Gson().fromJson(json, T::class.java)
+        }
+
      */
-    fun updateTask(task: Task) {
-        viewModelScope.launch {
-            taskDao.updateTask(task)
-//            Log.d("success_updateTask", "${task.id} ${task.name} ${task.userId} ${task.password}")
-        }
-    }
-
-    fun updateIdsAfterDelete(taskId: Int) {
-        viewModelScope.launch {
-            taskDao.updateIdsAfterDelete(taskId)
-        }
-    }
-
-    /*
-     * TODO　カレンダー下部のアイテム長押しで削除
-     */
-    fun deleteTask(task: Task) {
-        viewModelScope.launch {
-            taskDao.deleteTask(task)
-//            Log.d("delete_updateTask", "${task.id} ${task.name} ${task.userId} ${task.password}")
-        }
-    }
-
-    // オブジェクトをJSON文字列に変換する
-    fun toJson(obj: Any): String {
-        return Gson().toJson(obj)
-    }
-
-    // JSON文字列をオブジェクトに変換する
-    inline fun <reified T> fromJson(json: String): T {
-        return Gson().fromJson(json, T::class.java)
-    }
-
- */
 }

@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -123,20 +124,24 @@ fun HomeScreen(
                 }
             }
         },
-    ) {
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .background(MaterialTheme.colorScheme.primary),
+                .background(MaterialTheme.colorScheme.primary)
+                .padding(innerPadding),
         ) {
             Spacer(modifier = Modifier.height(32.dp))
+            val listState = rememberLazyListState()
+
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
                     .padding(horizontal = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                state = listState
             ) {
                 items(viewModel.categoryItemList) {
                     Row {
@@ -148,19 +153,18 @@ fun HomeScreen(
                         )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    HorizontalScrollableCardList(viewModel)
+                    HorizontalScrollableCardList(viewModel, listState.firstVisibleItemIndex)
                 }
             }
-
         }
     }
-
 }
 
 
 @Composable
 fun HorizontalScrollableCardList(
     viewModel: MainViewModel = hiltViewModel(),
+    index: Int
 ) {
 //    var expanded by remember { mutableStateOf(false) }
     var itemList: MutableList<CategoryItem> = mutableListOf()
@@ -170,12 +174,10 @@ fun HorizontalScrollableCardList(
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        for (i in viewModel.categoryItemList) {
-            if (i.second != null) {
-                itemList.add(i.second!!)
-            }
-        }
-        items(itemList) { item ->
+//        for (i in viewModel.categoryItemList) {
+//            itemList.add(i.second!!)
+//        }
+        items(viewModel.categoryItemList[index].second) { item ->
             Card(item)
         }
         item {
@@ -184,14 +186,14 @@ fun HorizontalScrollableCardList(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                AddButton(viewModel)
+                AddButton(viewModel, index)
             }
         }
     }
 }
 
 @Composable
-fun Card(categoryItem: CategoryItem) {
+fun Card(categoryItem: CategoryItem?) {
     var expanded by remember { mutableStateOf(false) }
     Card(
         shape = RoundedCornerShape(16.dp),
@@ -240,7 +242,7 @@ fun Card(categoryItem: CategoryItem) {
             }
 
             Text(
-                text = categoryItem.itemName,
+                text = categoryItem?.itemName!!,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
@@ -264,10 +266,13 @@ fun Card(categoryItem: CategoryItem) {
 
 @Composable
 fun AddButton(
-    viewModel: MainViewModel = hiltViewModel()
+    viewModel: MainViewModel = hiltViewModel(),
+    index: Int
 ) {
     Button(
         onClick = {
+            println("test!!! ${index}")
+            viewModel.selectIndex = index
             viewModel.isShowNewItemDialog = true
         },
         shape = MaterialTheme.shapes.large,
