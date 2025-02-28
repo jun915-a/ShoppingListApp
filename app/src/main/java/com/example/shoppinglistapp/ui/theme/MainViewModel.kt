@@ -23,6 +23,7 @@ class MainViewModel @Inject constructor(
 
     var selectIndex by mutableStateOf(0)
 
+    //todo Room導入
 
 //    var memo by mutableStateOf("")
 

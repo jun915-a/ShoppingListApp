@@ -1,6 +1,9 @@
 package com.example.shoppinglistapp.ui.theme.screen
 
 import MyNavigationBar
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -39,6 +42,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -93,34 +97,48 @@ fun HomeScreen(
     paddingValues: PaddingValues,
     viewModel: MainViewModel = hiltViewModel(),
 ) {
+    val listState = rememberLazyListState()
+
+    val isScrolledToEnd by remember {
+        derivedStateOf {
+            listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == viewModel.categoryItemList.lastIndex
+        }
+    }
     Scaffold(
         modifier = Modifier
             .padding(paddingValues)
             .fillMaxSize(),
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    viewModel.isShowCategoryDialog = true
-                },
-                modifier = Modifier//TODO スクロールが最下部に達したらVISIBLEにする
-                    .padding(end = 16.dp)
-                    .clip(RoundedCornerShape(50)),
-                containerColor = MaterialTheme.colorScheme.onPrimary, // 背景色
-                contentColor = Color.White, // アイコンとテキストの色
-                elevation = FloatingActionButtonDefaults.elevation(8.dp) // 影
-            ) {
-                Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "カテゴリ追加",
-                        modifier = Modifier.padding(end = 8.dp),
-                        tint = MaterialTheme.colorScheme.tertiary
-                    )
-                    Text(
-                        text = "カテゴリ追加",
-                        fontSize = 16.sp,
-                        color = MaterialTheme.colorScheme.tertiary
-                    )
+            AnimatedVisibility(
+                visible = isScrolledToEnd || viewModel.categoryItemList.size < 3,
+                enter = fadeIn(),
+                exit = fadeOut(),
+
+                ) {
+                FloatingActionButton(
+                    onClick = {
+                        viewModel.isShowCategoryDialog = true
+                    },
+                    modifier = Modifier
+                        .padding(end = 16.dp)
+                        .clip(RoundedCornerShape(50)),
+                    containerColor = MaterialTheme.colorScheme.onPrimary, // 背景色
+                    contentColor = Color.White, // アイコンとテキストの色
+                    elevation = FloatingActionButtonDefaults.elevation(8.dp) // 影
+                ) {
+                    Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "カテゴリ追加",
+                            modifier = Modifier.padding(end = 8.dp),
+                            tint = MaterialTheme.colorScheme.tertiary
+                        )
+                        Text(
+                            text = "カテゴリ追加",
+                            fontSize = 16.sp,
+                            color = MaterialTheme.colorScheme.tertiary
+                        )
+                    }
                 }
             }
         },
@@ -133,7 +151,6 @@ fun HomeScreen(
                 .padding(innerPadding),
         ) {
             Spacer(modifier = Modifier.height(32.dp))
-            val listState = rememberLazyListState()
 
             LazyColumn(
                 modifier = Modifier
