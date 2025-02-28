@@ -31,7 +31,7 @@ fun MyNavigationBar(navController: NavHostController) {
     NavigationBar(
         modifier =
         Modifier
-            .background(MaterialTheme.colorScheme.secondary)
+            .background(MaterialTheme.colorScheme.primary)
             .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)), // 上部のみ角丸
         containerColor = Purple90,
 

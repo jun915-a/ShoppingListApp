@@ -78,7 +78,7 @@ fun BaseScreen(
             startDestination = "home",
         ) {
             composable("home") {
-                HomeScreen(viewModel)
+                HomeScreen(innerPadding, viewModel)
 //                MockHomeScreen(innerPadding, viewModel) //デモデータ
             }
             composable("barcodeScan") { CameraScreen() }
@@ -90,21 +90,20 @@ fun BaseScreen(
 
 @Composable
 fun HomeScreen(
-//    paddingValues: PaddingValues,
+    paddingValues: PaddingValues,
     viewModel: MainViewModel = hiltViewModel(),
 ) {
     Scaffold(
         modifier = Modifier
-//            .padding(paddingValues)
+            .padding(paddingValues)
             .fillMaxSize(),
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
                     viewModel.isShowCategoryDialog = true
                 },
-                modifier = Modifier
-                    .padding(16.dp)
-                    .padding(bottom = 60.dp)
+                modifier = Modifier//TODO スクロールが最下部に達したらVISIBLEにする
+                    .padding(end = 16.dp)
                     .clip(RoundedCornerShape(50)),
                 containerColor = MaterialTheme.colorScheme.onPrimary, // 背景色
                 contentColor = Color.White, // アイコンとテキストの色
@@ -145,6 +144,7 @@ fun HomeScreen(
                 state = listState
             ) {
                 itemsIndexed(viewModel.categoryItemList) { index, categoryItemList ->
+                    //TODO ここのIndexを使ってアイテムの追加時にIndex+1の要素にaddする処理を追加する
                     Text(
                         text = categoryItemList.first,
                         fontSize = 18.sp,
@@ -153,7 +153,7 @@ fun HomeScreen(
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
-                    HorizontalScrollableCardList(viewModel, categoryItemList)
+                    HorizontalScrollableCardList(viewModel, categoryItemList, index)
                 }
             }
         }
@@ -164,27 +164,15 @@ fun HomeScreen(
 @Composable
 fun HorizontalScrollableCardList(
     viewModel: MainViewModel = hiltViewModel(),
-    categoryList: Pair<String, MutableList<CategoryItem?>>
+    categoryList: Pair<String, MutableList<CategoryItem?>>,
+    index: Int
 ) {
-//    var expanded by remember { mutableStateOf(false) }
-    var itemList: MutableList<CategoryItem> = mutableListOf()
-    var a = 0
-    for (i in viewModel.categoryItemList) {
-        a++
-        println("testXXX categoryItemList ${viewModel.categoryItemList.size} ${i.second.size} ${i.first}")
-        for (n in i.second) {
-            println("testXXX second ${viewModel.categoryItemList.size} ${i.second.size} ${n?.itemName}")
-        }
-    }
-
     LazyRow(
         modifier = Modifier
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-//        for (i in viewModel.categoryItemList) {
-//            itemList.add(i.second!!)
-//        }
+
         items(categoryList.second) { item ->
             Card(item)
         }
@@ -194,7 +182,7 @@ fun HorizontalScrollableCardList(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                AddButton(viewModel)
+                AddButton(viewModel, index)
             }
 
         }
@@ -276,10 +264,11 @@ fun Card(categoryItem: CategoryItem?) {
 @Composable
 fun AddButton(
     viewModel: MainViewModel = hiltViewModel(),
+    index: Int
 ) {
     Button(
         onClick = {
-//            viewModel.selectIndex = index
+            viewModel.selectIndex = index
             viewModel.isShowNewItemDialog = true
         },
         shape = MaterialTheme.shapes.large,
@@ -298,5 +287,3 @@ fun AddButton(
         )
     }
 }
-
-

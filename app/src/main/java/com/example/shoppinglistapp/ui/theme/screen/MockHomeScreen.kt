@@ -113,7 +113,6 @@ fun MockHomeScreen(
 //                        Icons.Default.Add,
 //                        contentDescription = "add",
 //                        modifier = Modifier.clickable {
-//                            println("test!!!")
 //                        })
                     }
                     Spacer(modifier = Modifier.height(8.dp))

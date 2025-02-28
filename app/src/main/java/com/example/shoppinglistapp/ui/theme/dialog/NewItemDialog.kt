@@ -43,7 +43,7 @@ fun NewItemDialog(
         AlertDialog(
             onDismissRequest = {
 //                onDismiss()
-            }, // ダイアログ外をタップしたときに閉じる
+            },
             title = {
                 Text(text = "アイテムの追加") // ダイアログのタイトル
             },
@@ -82,8 +82,7 @@ fun NewItemDialog(
             confirmButton = {
                 Button(
                     onClick = {
-//                        println("test!!! dialog ${viewModel.selectIndex}")
-                        viewModel.categoryItemList[0].second.add(itemState)
+                        viewModel.categoryItemList[viewModel.selectIndex].second.add(itemState)
                         viewModel.isShowNewItemDialog = false
                     },
                     enabled = isConfirmEnabled,
