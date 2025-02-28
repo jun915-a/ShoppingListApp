@@ -14,14 +14,21 @@ class MainViewModel @Inject constructor(
 //    private val taskDao: TaskDao
 ) : ViewModel() {
 
-    //新規アイテム追加
+    //新規カテゴリ追加ダイアログ
     var isShowCategoryDialog by mutableStateOf(false)
+
+    //新規アイテム追加ダイアログ
     var isShowNewItemDialog by mutableStateOf(false)
+
+    //バーコード検索ダイアログ
+    var isShowSearchBarcodeDialog by mutableStateOf(false)
+    var selectIndex by mutableStateOf(0)
+
 
     //    var categoryNameList: MutableList<CategoryItem> = mutableListOf()
     var categoryItemList: MutableList<Pair<String, MutableList<CategoryItem?>>> = mutableListOf()
 
-    var selectIndex by mutableStateOf(0)
+    var detectedCode by mutableStateOf("")
 
     //todo Room導入
 

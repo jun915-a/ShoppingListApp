@@ -1,10 +1,10 @@
 package com.example.shoppinglistapp.ui.theme.screen
 
 import android.Manifest
-import android.net.Uri
 import android.util.Log
 import android.view.ViewGroup
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -29,9 +29,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.example.shoppinglistapp.ui.theme.MainViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import com.google.mlkit.vision.barcode.BarcodeScanning
+import com.google.mlkit.vision.barcode.common.Barcode
+import com.google.mlkit.vision.common.InputImage
+import java.util.concurrent.Executors
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -67,8 +72,10 @@ fun RequestCameraPermission(
 }
 
 @Composable
-fun CameraScreen() {
+fun CameraScreen(viewModel: MainViewModel) {
     var hasPermission by remember { mutableStateOf(false) }
+    var detectedBarcodes by remember { mutableStateOf<List<Barcode>>(emptyList()) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     RequestCameraPermission {
         hasPermission = true
@@ -76,15 +83,31 @@ fun CameraScreen() {
 
     if (hasPermission) {
         CameraPreview(
-            onImageCaptured = { uri -> Log.d("Camera", "画像キャプチャ: $uri") },
-            onError = { exception -> Log.e("Camera", "エラー: ${exception.message}") }
+            viewModel,
+            onBarcodeDetected = { barcodes ->
+                detectedBarcodes = barcodes
+                errorMessage = null
+            },
+            onError = { exception ->
+                errorMessage = "Error: ${exception.message}"
+            }
         )
+
+        if (detectedBarcodes.isNotEmpty()) {
+            //TODO 外部遷移ダイアログ表示　ここでバグ？
+            viewModel.isShowSearchBarcodeDialog = true
+        }
+
+        if (errorMessage != null) {
+            Text(errorMessage!!)
+        }
     }
 }
 
 @Composable
 fun CameraPreview(
-    onImageCaptured: (Uri) -> Unit,
+    viewModel: MainViewModel,
+    onBarcodeDetected: (List<Barcode>) -> Unit,
     onError: (Exception) -> Unit
 ) {
     val context = LocalContext.current
@@ -105,13 +128,45 @@ fun CameraPreview(
             cameraProviderFuture.addListener({
                 val cameraProvider = cameraProviderFuture.get()
 
-                // ✅ Preview オブジェクトを適切に作成
                 val preview = Preview.Builder().build().apply {
                     setSurfaceProvider(previewView.surfaceProvider)
                 }
 
-                // 画像キャプチャ用オブジェクト
                 val imageCapture = ImageCapture.Builder().build()
+
+                // ImageAnalysis の設定
+                val imageAnalysis = ImageAnalysis.Builder()
+                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                    .build()
+                    .also { analysisUseCase ->
+                        analysisUseCase.setAnalyzer(
+                            Executors.newSingleThreadExecutor()
+                        ) { imageProxy ->
+                            val image = imageProxy.image
+                            if (image != null) {
+                                val inputImage = InputImage.fromMediaImage(
+                                    image,
+                                    imageProxy.imageInfo.rotationDegrees
+                                )
+                                val scanner = BarcodeScanning.getClient()
+                                scanner.process(inputImage)
+                                    .addOnSuccessListener { barcodes ->
+                                        if (barcodes.isNotEmpty()) {
+                                            onBarcodeDetected(barcodes)
+                                        }
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Log.e("BarcodeScanner", "Barcode scanning failed", e)
+                                        onError(e)
+                                    }
+                                    .addOnCompleteListener {
+                                        imageProxy.close()
+                                    }
+                            } else {
+                                imageProxy.close()
+                            }
+                        }
+                    }
 
                 val cameraSelector = CameraSelector.Builder()
                     .requireLensFacing(CameraSelector.LENS_FACING_BACK)
@@ -122,7 +177,8 @@ fun CameraPreview(
                     cameraProvider.bindToLifecycle(
                         lifecycleOwner, cameraSelector,
                         preview,
-                        imageCapture
+                        imageCapture,
+                        imageAnalysis // ImageAnalysis を追加
                     )
                 } catch (exc: Exception) {
                     onError(exc)

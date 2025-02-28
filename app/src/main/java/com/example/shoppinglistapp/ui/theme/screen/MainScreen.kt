@@ -63,6 +63,7 @@ import com.example.shoppinglistapp.ui.theme.Purple80
 import com.example.shoppinglistapp.ui.theme.dialog.CategoryDialog
 import com.example.shoppinglistapp.ui.theme.dialog.CategoryItem
 import com.example.shoppinglistapp.ui.theme.dialog.NewItemDialog
+import com.example.shoppinglistapp.ui.theme.dialog.SearchBarcodeDialog
 
 
 @Composable
@@ -71,6 +72,7 @@ fun BaseScreen(
 ) {
     CategoryDialog(isDialogOpen = viewModel.isShowCategoryDialog)
     NewItemDialog(isDialogOpen = viewModel.isShowNewItemDialog)
+    SearchBarcodeDialog(viewModel.isShowSearchBarcodeDialog)
     val navController = rememberNavController()
 
     Scaffold(modifier = Modifier.fillMaxSize(),
@@ -85,7 +87,7 @@ fun BaseScreen(
                 HomeScreen(innerPadding, viewModel)
 //                MockHomeScreen(innerPadding, viewModel) //デモデータ
             }
-            composable("barcodeScan") { CameraScreen() }
+            composable("barcodeScan") { CameraScreen(viewModel) }
             composable("setting") { SettingsScreen(paddingValues = innerPadding) }
         }
 
