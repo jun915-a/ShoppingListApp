@@ -82,8 +82,8 @@ fun NewItemDialog(
             confirmButton = {
                 Button(
                     onClick = {
-                        println("test!!! dialog ${viewModel.selectIndex}")
-                        viewModel.categoryItemList[viewModel.selectIndex].second.add(itemState)
+//                        println("test!!! dialog ${viewModel.selectIndex}")
+                        viewModel.categoryItemList[0].second.add(itemState)
                         viewModel.isShowNewItemDialog = false
                     },
                     enabled = isConfirmEnabled,
