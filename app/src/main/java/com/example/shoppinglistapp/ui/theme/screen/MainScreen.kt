@@ -90,7 +90,7 @@ fun BaseScreen(
 //                MockHomeScreen(innerPadding, viewModel) //デモデータ
             }
             composable("barcodeScan") { CameraScreen(viewModel) }
-            composable("setting") { SettingsScreen(paddingValues = innerPadding) }
+            composable("setting") { SettingsScreen(paddingValues = innerPadding,viewModel) }
         }
 
     }

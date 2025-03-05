@@ -128,8 +128,3 @@ fun NewItemDialog(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewNewDialog() {
-//    NewItemDialog(isNewDialogOpen = true)
-}

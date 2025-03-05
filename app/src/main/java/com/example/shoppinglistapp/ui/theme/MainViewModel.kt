@@ -27,6 +27,9 @@ class MainViewModel @Inject constructor(
     var isShowSearchBarcodeDialog by mutableStateOf(false)
     var selectIndex by mutableStateOf(0)
 
+    //削除確認ダイアログ
+    var isShowDeleteDialog by mutableStateOf(false)
+
 
     //    var categoryNameList: MutableList<CategoryItem> = mutableListOf()
     var categoryItemList: MutableList<Pair<String, MutableList<CategoryItem?>>> = mutableListOf()
