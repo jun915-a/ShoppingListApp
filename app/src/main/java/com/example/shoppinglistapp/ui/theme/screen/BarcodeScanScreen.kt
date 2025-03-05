@@ -43,9 +43,7 @@ import java.util.concurrent.Executors
 fun RequestCameraPermission(
     onPermissionGranted: () -> Unit
 ) {
-
     val cameraPermissionState = rememberPermissionState(permission = Manifest.permission.CAMERA)
-
     LaunchedEffect(Unit) {
         if (!cameraPermissionState.status.isGranted) {
             cameraPermissionState.launchPermissionRequest()
@@ -82,20 +80,21 @@ fun CameraScreen(viewModel: MainViewModel) {
     }
 
     if (hasPermission) {
-        CameraPreview(
-            viewModel,
-            onBarcodeDetected = { barcodes ->
-                detectedBarcodes = barcodes
-                errorMessage = null
-            },
-            onError = { exception ->
-                errorMessage = "Error: ${exception.message}"
-            }
-        )
+        CameraPreview(viewModel, onBarcodeDetected = { barcodes ->
+            detectedBarcodes = barcodes
+            errorMessage = null
+        }, onError = { exception ->
+            errorMessage = "Error: ${exception.message}"
+        })
 
         if (detectedBarcodes.isNotEmpty()) {
-            //TODO 外部遷移ダイアログ表示　ここでバグ？
-            viewModel.isShowSearchBarcodeDialog = true
+            for (barcode in detectedBarcodes) {
+                viewModel.detectedCode = barcode.rawValue.toString()
+            }
+            detectedBarcodes = emptyList()
+            if (viewModel.detectedCode.isNotEmpty()) {
+                viewModel.isShowSearchBarcodeDialog = true
+            }
         }
 
         if (errorMessage != null) {
@@ -114,78 +113,70 @@ fun CameraPreview(
     val lifecycleOwner = LocalLifecycleOwner.current
     val executor = ContextCompat.getMainExecutor(context)
 
-    AndroidView(
-        factory = { ctx ->
-            val previewView = PreviewView(ctx).apply {
-                layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
+    AndroidView(factory = { ctx ->
+        val previewView = PreviewView(ctx).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
+            )
+        }
+
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
+
+        cameraProviderFuture.addListener({
+            val cameraProvider = cameraProviderFuture.get()
+
+            val preview = Preview.Builder().build().apply {
+                setSurfaceProvider(previewView.surfaceProvider)
             }
 
-            val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
+            val imageCapture = ImageCapture.Builder().build()
 
-            cameraProviderFuture.addListener({
-                val cameraProvider = cameraProviderFuture.get()
-
-                val preview = Preview.Builder().build().apply {
-                    setSurfaceProvider(previewView.surfaceProvider)
-                }
-
-                val imageCapture = ImageCapture.Builder().build()
-
-                // ImageAnalysis の設定
-                val imageAnalysis = ImageAnalysis.Builder()
-                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                    .build()
-                    .also { analysisUseCase ->
-                        analysisUseCase.setAnalyzer(
-                            Executors.newSingleThreadExecutor()
-                        ) { imageProxy ->
-                            val image = imageProxy.image
-                            if (image != null) {
-                                val inputImage = InputImage.fromMediaImage(
-                                    image,
-                                    imageProxy.imageInfo.rotationDegrees
-                                )
-                                val scanner = BarcodeScanning.getClient()
-                                scanner.process(inputImage)
-                                    .addOnSuccessListener { barcodes ->
-                                        if (barcodes.isNotEmpty()) {
-                                            onBarcodeDetected(barcodes)
-                                        }
-                                    }
-                                    .addOnFailureListener { e ->
-                                        Log.e("BarcodeScanner", "Barcode scanning failed", e)
-                                        onError(e)
-                                    }
-                                    .addOnCompleteListener {
-                                        imageProxy.close()
-                                    }
-                            } else {
+            // ImageAnalysis の設定
+            val imageAnalysis = ImageAnalysis.Builder()
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build()
+                .also { analysisUseCase ->
+                    analysisUseCase.setAnalyzer(
+                        Executors.newSingleThreadExecutor()
+                    ) { imageProxy ->
+                        val image = imageProxy.image
+                        if (image != null) {
+                            val inputImage = InputImage.fromMediaImage(
+                                image, imageProxy.imageInfo.rotationDegrees
+                            )
+                            val scanner = BarcodeScanning.getClient()
+                            scanner.process(inputImage).addOnSuccessListener { barcodes ->
+                                if (barcodes.isNotEmpty()) {
+                                    onBarcodeDetected(barcodes)
+                                }
+                            }.addOnFailureListener { e ->
+                                Log.e("BarcodeScanner", "Barcode scanning failed", e)
+                                onError(e)
+                            }.addOnCompleteListener {
                                 imageProxy.close()
                             }
+                        } else {
+                            imageProxy.close()
                         }
                     }
-
-                val cameraSelector = CameraSelector.Builder()
-                    .requireLensFacing(CameraSelector.LENS_FACING_BACK)
-                    .build()
-
-                try {
-                    cameraProvider.unbindAll()
-                    cameraProvider.bindToLifecycle(
-                        lifecycleOwner, cameraSelector,
-                        preview,
-                        imageCapture,
-                        imageAnalysis // ImageAnalysis を追加
-                    )
-                } catch (exc: Exception) {
-                    onError(exc)
                 }
-            }, executor)
 
-            previewView
-        }
-    )
+            val cameraSelector =
+                CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build()
+
+            try {
+                cameraProvider.unbindAll()
+                cameraProvider.bindToLifecycle(
+                    lifecycleOwner,
+                    cameraSelector,
+                    preview,
+                    imageCapture,
+                    imageAnalysis // ImageAnalysis を追加
+                )
+            } catch (exc: Exception) {
+                onError(exc)
+            }
+        }, executor)
+
+        previewView
+    })
 }
