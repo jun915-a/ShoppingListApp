@@ -20,6 +20,9 @@ class MainViewModel @Inject constructor(
     //新規アイテム追加ダイアログ
     var isShowNewItemDialog by mutableStateOf(false)
 
+    var isShowEditItemDialog by mutableStateOf(false)
+    var editItem: CategoryItem? = null
+
     //バーコード検索ダイアログ
     var isShowSearchBarcodeDialog by mutableStateOf(false)
     var selectIndex by mutableStateOf(0)

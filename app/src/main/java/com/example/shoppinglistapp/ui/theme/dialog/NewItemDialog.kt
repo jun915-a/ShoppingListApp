@@ -27,10 +27,12 @@ import com.example.shoppinglistapp.ui.theme.Purple80
 @Composable
 fun NewItemDialog(
     viewModel: MainViewModel = hiltViewModel(),
-    isDialogOpen: Boolean, // ダイアログが表示されるかどうか
+    isNewDialogOpen: Boolean,
+    isEditDialogOpen: Boolean,
+
 //    onConfirm: (String) -> Unit // 確定ボタンが押された時に呼ばれる処理
 ) {
-    if (isDialogOpen) {
+    if (isNewDialogOpen || isEditDialogOpen) {
         // ダイアログの表示
         var isConfirmEnabled by remember { mutableStateOf(false) }
 
@@ -82,8 +84,21 @@ fun NewItemDialog(
             confirmButton = {
                 Button(
                     onClick = {
-                        viewModel.categoryItemList[viewModel.selectIndex].second.add(itemState)
-                        viewModel.isShowNewItemDialog = false
+                        if (isNewDialogOpen) {
+                            viewModel.categoryItemList[viewModel.selectIndex].second.add(itemState)
+                            viewModel.isShowNewItemDialog = false
+                        }
+                        if (isEditDialogOpen) {
+                            viewModel.categoryItemList.forEach { pair ->
+                                val list = pair.second
+                                val index = list.indexOfFirst { it == viewModel.editItem }
+                                if (index != -1) {
+                                    list[index] = CategoryItem(itemState.itemName,itemState.memo)
+                                    viewModel.isShowEditItemDialog = false
+                                    return@forEach
+                                }
+                            }
+                        }
                     },
                     enabled = isConfirmEnabled,
                     colors = ButtonDefaults.buttonColors(
@@ -98,6 +113,8 @@ fun NewItemDialog(
                 Button(
                     onClick = {
                         viewModel.isShowNewItemDialog = false
+                        viewModel.isShowEditItemDialog = false
+
                     }, enabled = true,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Purple80,
@@ -114,5 +131,5 @@ fun NewItemDialog(
 @Preview(showBackground = true)
 @Composable
 fun PreviewNewDialog() {
-    NewItemDialog(isDialogOpen = true)
+//    NewItemDialog(isNewDialogOpen = true)
 }

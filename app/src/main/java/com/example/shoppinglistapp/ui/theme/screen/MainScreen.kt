@@ -65,13 +65,15 @@ import com.example.shoppinglistapp.ui.theme.dialog.CategoryItem
 import com.example.shoppinglistapp.ui.theme.dialog.NewItemDialog
 import com.example.shoppinglistapp.ui.theme.dialog.SearchBarcodeDialog
 
-
 @Composable
 fun BaseScreen(
     viewModel: MainViewModel = hiltViewModel(),
 ) {
     CategoryDialog(isDialogOpen = viewModel.isShowCategoryDialog)
-    NewItemDialog(isDialogOpen = viewModel.isShowNewItemDialog)
+    NewItemDialog(
+        isNewDialogOpen = viewModel.isShowNewItemDialog,
+        isEditDialogOpen = viewModel.isShowEditItemDialog
+    )
     SearchBarcodeDialog(viewModel.isShowSearchBarcodeDialog)
     val navController = rememberNavController()
 
@@ -115,8 +117,7 @@ fun HomeScreen(
                 visible = isScrolledToEnd || viewModel.categoryItemList.size < 3,
                 enter = fadeIn(),
                 exit = fadeOut(),
-
-                ) {
+            ) {
                 FloatingActionButton(
                     onClick = {
                         viewModel.isShowCategoryDialog = true
@@ -170,7 +171,6 @@ fun HomeScreen(
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
                     )
-
                     Spacer(modifier = Modifier.height(8.dp))
                     HorizontalScrollableCardList(viewModel, categoryItemList, index)
                 }
@@ -193,7 +193,7 @@ fun HorizontalScrollableCardList(
     ) {
 
         items(categoryList.second) { item ->
-            Card(item)
+            Card(item, viewModel)
         }
         item {
             Column(
@@ -209,7 +209,7 @@ fun HorizontalScrollableCardList(
 }
 
 @Composable
-fun Card(categoryItem: CategoryItem?) {
+fun Card(categoryItem: CategoryItem?, viewModel: MainViewModel) {
     var expanded by remember { mutableStateOf(false) }
     Card(
         shape = RoundedCornerShape(16.dp),
@@ -238,18 +238,42 @@ fun Card(categoryItem: CategoryItem?) {
                     DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                         DropdownMenuItem(
                             text = { Text("編集") },
-                            onClick = { /* Handle edit! */ },
+                            onClick = {
+                                expanded = false
+                                viewModel.categoryItemList.forEach { pair ->
+                                    val list = pair.second
+                                    val index = list.indexOfFirst { it == categoryItem }
+                                    if (index != -1) {
+                                        viewModel.editItem = list[index]
+                                        viewModel.isShowEditItemDialog = true
+
+                                        return@forEach
+                                    }
+                                }
+                            },
                             leadingIcon = { Icon(Icons.Outlined.Edit, contentDescription = null) }
                         )
                         DropdownMenuItem(
                             text = { Text("削除", color = Color.Red) },
-                            onClick = { /* Handle settings! */ },
+                            onClick = {
+                                expanded = false
+                                viewModel.categoryItemList.forEach { pair ->
+                                    val list = pair.second
+                                    val index = list.indexOfFirst { it == categoryItem }
+                                    if (index != -1) {
+                                        list.removeAt(index)
+                                        viewModel.isShowNewItemDialog = true
+                                        viewModel.isShowNewItemDialog = false
+
+                                        return@forEach
+                                    }
+                                }
+                            },
                             leadingIcon = {
                                 Icon(
                                     Icons.Outlined.Delete,
                                     contentDescription = null,
                                     tint = Color.Red
-
                                 )
                             }
                         )
