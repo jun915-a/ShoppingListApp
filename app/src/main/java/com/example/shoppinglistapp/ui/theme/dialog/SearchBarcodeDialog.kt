@@ -47,7 +47,7 @@ fun SearchBarcodeDialog(
                     viewModel.detectedCode = ""
                 },
                 title = {
-                    Text("コードが検出されました ${viewModel.detectedCode}")
+                    Text("コードが検出されました")
                 },
                 text = {
                     Text(viewModel.detectedCode)
@@ -55,7 +55,6 @@ fun SearchBarcodeDialog(
                 confirmButton = {
                     Button(
                         onClick = {
-                            viewModel.isShowSearchBarcodeDialog = false
                             if (viewModel.detectedCode.isNotEmpty()) {
                                 val intent = Intent(
                                     Intent.ACTION_VIEW,
@@ -64,6 +63,7 @@ fun SearchBarcodeDialog(
                                 context.startActivity(intent)
                             }
                             viewModel.detectedCode = ""
+                            viewModel.isShowSearchBarcodeDialog = false
                         },
                         enabled = true,
                         colors = ButtonDefaults.buttonColors(

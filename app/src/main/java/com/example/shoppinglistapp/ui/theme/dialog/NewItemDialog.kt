@@ -111,7 +111,7 @@ fun NewItemDialog(
                         contentColor = Color.Black
                     )
                 ) {
-                    Text("確認")
+                    Text("追加")
                 }
             },
             dismissButton = {
