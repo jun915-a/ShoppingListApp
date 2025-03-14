@@ -1,10 +1,14 @@
 package com.example.shoppinglistapp.ui.theme
 
+import android.content.Context
+import android.content.SharedPreferences
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.shoppinglistapp.ui.theme.dialog.CategoryItem
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -36,7 +40,37 @@ class MainViewModel @Inject constructor(
 
     var detectedCode by mutableStateOf("")
 
-    //todo Room導入
+
+    fun saveCategoryItemList(context: Context, categoryItemList: MutableList<Pair<String, MutableList<CategoryItem?>>>) {
+        val sharedPreferences: SharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+
+        val gson = Gson()
+        val json = gson.toJson(categoryItemList) // リストをJSON文字列に変換
+
+        editor.putString("categoryItemList", json) // JSON文字列を保存
+        editor.apply()
+    }
+
+    fun getCategoryItemList(context: Context): MutableList<Pair<String, MutableList<CategoryItem?>>> {
+        val sharedPreferences: SharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        val json = sharedPreferences.getString("categoryItemList", null) // JSON文字列を取得
+
+        if (json != null) {
+            val gson = Gson()
+            val type = object : TypeToken<MutableList<Pair<String, MutableList<CategoryItem?>>>>() {}.type
+            return gson.fromJson(json, type) // JSON文字列をリストに変換
+        }
+
+        return mutableListOf() // データが存在しない場合は空のリストを返す
+    }
+
+    fun deleteCategoryItemList(context: Context) {
+        val sharedPreferences: SharedPreferences = context.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.clear() // すべてのデータを削除
+        editor.apply()
+    }
 
 //    var memo by mutableStateOf("")
 

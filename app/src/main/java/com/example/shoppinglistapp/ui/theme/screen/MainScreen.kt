@@ -1,6 +1,7 @@
 package com.example.shoppinglistapp.ui.theme.screen
 
 import MyNavigationBar
+import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -68,11 +69,13 @@ import com.example.shoppinglistapp.ui.theme.dialog.SearchBarcodeDialog
 @Composable
 fun BaseScreen(
     viewModel: MainViewModel = hiltViewModel(),
+    context: Context
 ) {
     CategoryDialog(isDialogOpen = viewModel.isShowCategoryDialog)
     NewItemDialog(
         isNewDialogOpen = viewModel.isShowNewItemDialog,
-        isEditDialogOpen = viewModel.isShowEditItemDialog
+        isEditDialogOpen = viewModel.isShowEditItemDialog,
+        context = context
     )
     SearchBarcodeDialog(viewModel.isShowSearchBarcodeDialog)
     val navController = rememberNavController()
@@ -90,7 +93,7 @@ fun BaseScreen(
 //                MockHomeScreen(innerPadding, viewModel) //デモデータ
             }
             composable("barcodeScan") { CameraScreen(viewModel) }
-            composable("setting") { SettingsScreen(paddingValues = innerPadding,viewModel) }
+            composable("setting") { SettingsScreen(paddingValues = innerPadding,viewModel, context = context) }
         }
 
     }

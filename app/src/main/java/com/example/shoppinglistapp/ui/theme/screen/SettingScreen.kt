@@ -1,5 +1,6 @@
 package com.example.shoppinglistapp.ui.theme.screen
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -36,10 +37,11 @@ import kotlinx.coroutines.delay
 @Composable
 fun SettingsScreen(
     paddingValues: PaddingValues,
-    viewModel: MainViewModel
-//    onDeleteData: () -> Unit, onShareToLine: () -> Unit
+    viewModel: MainViewModel,
+context: Context
+    //    onDeleteData: () -> Unit, onShareToLine: () -> Unit
 ) {
-    DeleteDialog(viewModel)
+    DeleteDialog(viewModel, context = context)
     var showDialog by remember { mutableStateOf(false) }
 
     // 画面遷移処理
@@ -90,6 +92,7 @@ fun SettingsScreen(
 @Composable
 fun DeleteDialog(
     viewModel: MainViewModel = hiltViewModel(),
+    context: Context
 ) {
     if (viewModel.isShowDeleteDialog) {
         Column(
@@ -113,6 +116,7 @@ fun DeleteDialog(
                         onClick = {
                             viewModel.isShowDeleteDialog = false
                             viewModel.categoryItemList = mutableListOf()
+                            viewModel.deleteCategoryItemList(context = context)
                         },
                         enabled = true,
                         colors = ButtonDefaults.buttonColors(
@@ -144,8 +148,6 @@ fun DeleteDialog(
 @Preview
 @Composable
 fun Preview() {
-    ShoppingListAppTheme {
-//        SettingsScreen()
-    }
+//    ShoppingListAppTh
 }
 

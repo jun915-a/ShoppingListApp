@@ -1,5 +1,6 @@
 package com.example.shoppinglistapp.ui.theme.dialog
 
+import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,11 +18,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.shoppinglistapp.ui.theme.MainViewModel
 import com.example.shoppinglistapp.ui.theme.Purple80
+import kotlin.coroutines.coroutineContext
 
 
 @Composable
@@ -29,7 +30,7 @@ fun NewItemDialog(
     viewModel: MainViewModel = hiltViewModel(),
     isNewDialogOpen: Boolean,
     isEditDialogOpen: Boolean,
-
+    context: Context
 //    onConfirm: (String) -> Unit // 確定ボタンが押された時に呼ばれる処理
 ) {
     if (isNewDialogOpen || isEditDialogOpen) {
@@ -93,12 +94,16 @@ fun NewItemDialog(
                                 val list = pair.second
                                 val index = list.indexOfFirst { it == viewModel.editItem }
                                 if (index != -1) {
-                                    list[index] = CategoryItem(itemState.itemName,itemState.memo)
+                                    list[index] = CategoryItem(itemState.itemName, itemState.memo)
                                     viewModel.isShowEditItemDialog = false
                                     return@forEach
                                 }
                             }
                         }
+                        viewModel.saveCategoryItemList(
+                            context = context,
+                            viewModel.categoryItemList
+                        )
                     },
                     enabled = isConfirmEnabled,
                     colors = ButtonDefaults.buttonColors(

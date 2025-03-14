@@ -1,8 +1,10 @@
 package com.example.shoppinglistapp.ui.theme
 
+import android.content.Context
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
 
 //private val DarkColorScheme = darkColorScheme(
 //    primary = Purple80,
@@ -32,8 +34,11 @@ fun ShoppingListAppTheme(
 //    darkTheme: Boolean = isSystemInDarkTheme(),
 //    // Dynamic color is available on Android 12+
 //    dynamicColor: Boolean = true,
+    context: Context,
+    viewModel: MainViewModel = hiltViewModel(),
     content: @Composable () -> Unit
 ) {
+    viewModel.categoryItemList = viewModel.getCategoryItemList(context = context)
     val colorScheme = LightColorScheme
 //        when {
 //        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
