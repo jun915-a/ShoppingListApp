@@ -22,8 +22,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.shoppinglistapp.ui.theme.MainViewModel
 import com.example.shoppinglistapp.ui.theme.Purple80
-import kotlin.coroutines.coroutineContext
-
 
 @Composable
 fun NewItemDialog(
@@ -37,7 +35,7 @@ fun NewItemDialog(
         // ダイアログの表示
         var isConfirmEnabled by remember { mutableStateOf(false) }
 
-        var itemState by remember { mutableStateOf<CategoryItem>(CategoryItem("", "")) }
+        var itemState by remember { mutableStateOf(CategoryItem("", "")) }
 
 
         if (itemState.itemName.isNotEmpty()) {

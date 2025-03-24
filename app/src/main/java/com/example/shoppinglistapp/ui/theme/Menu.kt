@@ -13,9 +13,6 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -25,10 +22,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.shoppinglistapp.ui.theme.Purple90
 
-@OptIn(ExperimentalMaterial3Api::class) // NavigationBar は Experimental
 @Composable
 fun MyNavigationBar(navController: NavHostController) {
-    var selectedItem by remember { mutableStateOf(0) } // 選択されたアイテムを追跡
     val items = listOf("home", "barcodeScan", "setting")
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -64,7 +59,6 @@ fun MyNavigationBar(navController: NavHostController) {
                     unselectedTextColor = Color.Gray
                 ),
                 onClick = { navController.navigate(item)
-                println("test!!!123 ${item} ${currentRoute}")
                 }
             )
         }

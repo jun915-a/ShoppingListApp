@@ -12,17 +12,13 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.Update
 
-@Entity(tableName = "Item")//SQLiteのテーブルとして扱われる
+@Entity(tableName = "Item")
 data class Item(
     @PrimaryKey(autoGenerate = true) val id: Int,//autoGenerate = true を指定すると、自動でID生成
     val itemName: String,
     val itemMemo: String
 )
 
-//@Insert → データの追加
-//@Update → データの更新
-//@Delete → データの削除
-//@Query → カスタムSQLの実行
 @Dao
 interface ItemDao{
     @Insert

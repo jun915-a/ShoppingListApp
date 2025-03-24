@@ -11,15 +11,15 @@ import javax.inject.Inject
 @HiltViewModel
 class UserViewModel @Inject constructor(private val itemDao: ItemDao) : ViewModel() {
 
-    fun insertUser(item: Item) {
-        viewModelScope.launch {
-            itemDao.insert(item)
-        }
-    }
-
-    suspend fun getAllUsers(): List<Item> {
-        return itemDao.getAllUsers()
-    }
+//    fun insertUser(item: Item) {
+//        viewModelScope.launch {
+//            itemDao.insert(item)
+//        }
+//    }
+//
+//    suspend fun getAllUsers(): List<Item> {
+//        return itemDao.getAllUsers()
+//    }
 }
 //private val userViewModel: UserViewModel by viewModels()
 

@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -116,7 +115,7 @@ fun MockHomeScreen(
 //                        })
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    MockHorizontalScrollableCardList(viewModel)
+                    MockHorizontalScrollableCardList()
                 }
             }
 
@@ -126,9 +125,7 @@ fun MockHomeScreen(
 }
 
 @Composable
-fun MockHorizontalScrollableCardList(
-    viewModel: MainViewModel = hiltViewModel(),
-    ) {
+fun MockHorizontalScrollableCardList() {
     val dummyItems = listOf("鶏もも肉", "牛肉", "豚肉", "魚", "野菜", "果物")
 //    val dummyItems = listOf("鶏もも肉",)
 //    var expanded by remember { mutableStateOf(false) }

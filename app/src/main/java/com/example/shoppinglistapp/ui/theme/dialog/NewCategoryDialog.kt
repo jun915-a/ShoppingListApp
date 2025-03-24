@@ -26,13 +26,10 @@ import com.example.shoppinglistapp.ui.theme.Purple80
 @Composable
 fun CategoryDialog(
     viewModel: MainViewModel = hiltViewModel(),
-    isDialogOpen: Boolean, // ダイアログが表示されるかどうか
-//    onDismiss: () -> Unit, // ダイアログを閉じるための処理
-//    onConfirm: (String) -> Unit // 確定ボタンが押された時に呼ばれる処理
+    isDialogOpen: Boolean,
 ) {
     if (isDialogOpen) {
         var isConfirmEnabled by remember { mutableStateOf(false) }
-        // EditText（TextField）を表示
         var textState by remember { mutableStateOf("") }
 
         if (textState.isNotEmpty()) {
